@@ -16,4 +16,5 @@
 - ``Figma``
 - ``Responsividade``
 <br>
- <a href="https://fokus-fnovitchs-projects.vercel.app/" target="_blank">Clique aqui!!</a> 
+<h6>Veja o deploy do projeto abaixo!!</h6>
+ <a href="https://fokus-fnovitchs-projects.vercel.app/" target="_blank"><em>Clique aqui</em></a> 
