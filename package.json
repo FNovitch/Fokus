@@ -1,0 +1,17 @@
+{
+  "name": "fokus",
+  "version": "1.0.0",
+  "description": "<h1 align=\"center\"> Fokus </h1>\r <p align=\"center\">\r <img loading=\"lazy\" src=\"http://img.shields.io/static/v1?label=STATUS&message=%20CONCLUIDO&color=GREEN&style=for-the-badge\"/>\r </p>\r <br>\r <br>\r <h3 align=\"center\">Resumo do Projeto</h3>\r <h6>Projeto de um Pomodoro sendo totalmente responsivo e usando boas práticas de programação,visando o aprendizado com o HTML, CSS e focando no JavaScript na utilização do DOM e manipulação de elementos na tela e estou aberto para críticas e sugestões de melhoria.</h6>\r <br>\r <br>\r <h5>✔️ Técnicas e tecnologias utilizadas</h5>",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^22.7.4",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.6.2"
+  }
+}

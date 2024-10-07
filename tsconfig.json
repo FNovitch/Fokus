@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "target": "ES6", // Versão de JavaScript que será gerada
+    "module": "CommonJS", // Tipo de módulo (ou ESNext, dependendo do uso)
+    "strict": true, // Ativa verificações mais estritas
+    "esModuleInterop": true, // Permite compatibilidade com módulos ES
+    "skipLibCheck": true, // Pula verificação de tipos nas bibliotecas para reduzir o tempo de build
+    "forceConsistentCasingInFileNames": true, // Força o uso consistente de maiúsculas e minúsculas
+    "outDir": "./dist", // Diretório onde os arquivos JavaScript gerados serão salvos
+    "rootDir": "./src/ts", // Diretório raiz para os arquivos TypeScript
+    "noEmitOnError": true // Não emite arquivos se houver erros
+  },
+  "include": ["src/**/*.ts"], // Arquivos que serão incluídos na compilação
+  "exclude": ["node_modules"] // Arquivos que serão excluídos da compilação
+}
