@@ -17,8 +17,11 @@ const PlaySound = new Audio("./src/sons/play.wav");
 const PauseSound = new Audio("./src/sons/pause.mp3");
 const FinishSound = new Audio("./src/sons/beep.mp3");
 const ResetSound = new Audio("./src/sons/restart.mp3");
-let timeinSeconds = 1500;
-let Interval = null;
+let tempoTotalEmSegundos = 1500;
+let tempoRestanteEmSegundos = 1500;
+let intervalId = null;
+let estaPausado = true;
+let tempoInicio = null;
 if (MusicFoco) {
     MusicFoco.addEventListener("change", () => {
         Music.loop = true;
@@ -32,32 +35,7 @@ if (MusicFoco) {
         }
     });
 }
-if (focoBt) {
-    focoBt.addEventListener("click", () => {
-        Zero();
-        timeinSeconds = 1500;
-        alterarCaminho("foco");
-        focoBt.classList.add("active");
-    });
-}
-if (curtoBt) {
-    curtoBt.addEventListener("click", () => {
-        Zero();
-        timeinSeconds = 300;
-        alterarCaminho("descanso-curto");
-        curtoBt.classList.add("active");
-    });
-}
-if (longoBt) {
-    longoBt.addEventListener("click", () => {
-        Zero();
-        timeinSeconds = 900;
-        alterarCaminho("descanso-longo");
-        longoBt.classList.add("active");
-    });
-}
 function alterarCaminho(contexto) {
-    ShowTime();
     Buttons.forEach(function (contexto) {
         contexto.classList.remove("active");
     });
@@ -81,65 +59,112 @@ function alterarCaminho(contexto) {
             break;
     }
 }
-const Countdown = () => {
-    if (timeinSeconds <= 0) {
-        FinishSound.play();
-        FinishSound.volume = 0.1;
-        alert("Tempo finalizado!");
-        Zero();
-        return;
+function iniciarOuPausarContagem() {
+    if (estaPausado) {
+        PlaySound.play();
+        PlaySound.volume = 0.1;
+        iniciarContagem();
     }
-    timeinSeconds -= 1;
-    ShowTime();
-};
-if (StartPauseBT) {
-    StartPauseBT.addEventListener("click", StartAndPause);
-}
-function StartAndPause() {
-    if (Interval) {
+    else {
         PauseSound.play();
         PauseSound.volume = 0.1;
-        Zero();
+        pausarContagem();
+    }
+}
+function iniciarContagem() {
+    if (intervalId)
+        clearInterval(intervalId);
+    estaPausado = false;
+    tempoInicio = Date.now() - (tempoTotalEmSegundos - tempoRestanteEmSegundos) * 1000;
+    intervalId = setInterval(atualizarTempo, 1000);
+    atualizarBotaoStartPause();
+}
+function pausarContagem() {
+    estaPausado = true;
+    if (intervalId)
+        clearInterval(intervalId);
+    atualizarBotaoStartPause();
+}
+function atualizarTempo() {
+    if (tempoInicio === null)
+        return;
+    const tempoDecorrido = Math.floor((Date.now() - tempoInicio) / 1000);
+    tempoRestanteEmSegundos = Math.max(tempoTotalEmSegundos - tempoDecorrido, 0);
+    if (tempoRestanteEmSegundos <= 0) {
+        finalizarContagem();
         return;
     }
-    PlaySound.play();
-    PlaySound.volume = 0.1;
-    Interval = setInterval(Countdown, 1000);
-    StartAndPauseBTImg === null || StartAndPauseBTImg === void 0 ? void 0 : StartAndPauseBTImg.setAttribute("src", "./src/imagens/pause.png");
-    StartAndPauseBT.textContent = "Pausar";
+    tempoRestanteEmSegundos--;
+    atualizarExibicaoTempo();
 }
-function Zero() {
-    if (Interval !== null && Interval !== undefined) {
-        clearInterval(Interval);
+function finalizarContagem() {
+    FinishSound.play();
+    FinishSound.volume = 0.1;
+    alert("Tempo finalizado!");
+    pausarContagem();
+    resetarTempo();
+}
+function resetarTempo() {
+    pausarContagem();
+    tempoRestanteEmSegundos = tempoTotalEmSegundos;
+    tempoInicio = null;
+    atualizarExibicaoTempo();
+}
+function atualizarExibicaoTempo() {
+    const tempo = new Date(tempoRestanteEmSegundos * 1000);
+    const tempoFormatado = tempo.toLocaleTimeString("pt-Br", { minute: "2-digit", second: "2-digit" });
+    if (TimeinScreen)
+        TimeinScreen.textContent = tempoFormatado;
+}
+function atualizarBotaoStartPause() {
+    if (!StartAndPauseBTImg || !StartAndPauseBT)
+        return;
+    if (estaPausado) {
+        StartAndPauseBTImg.setAttribute("src", "./src/imagens/play_arrow.png");
+        StartAndPauseBT.textContent = "Começar";
     }
-    StartAndPauseBTImg === null || StartAndPauseBTImg === void 0 ? void 0 : StartAndPauseBTImg.setAttribute("src", "./src/imagens/play_arrow.png");
-    StartAndPauseBT.textContent = "Começar";
-    Interval = null;
+    else {
+        StartAndPauseBTImg.setAttribute("src", "./src/imagens/pause.png");
+        StartAndPauseBT.textContent = "Pausar";
+    }
 }
-function ShowTime() {
-    const Time = new Date(timeinSeconds * 1000);
-    const TimeFormated = Time.toLocaleTimeString("pt-Br", { minute: "2-digit", second: "2-digit" });
-    TimeinScreen.innerHTML = `${TimeFormated}`;
+if (StartPauseBT) {
+    StartPauseBT.addEventListener("click", iniciarOuPausarContagem);
 }
 if (Reset) {
-    Reset.addEventListener("click", RestartTime);
+    Reset.addEventListener("click", () => {
+        ResetSound.play();
+        ResetSound.volume = 0.1;
+        resetarTempo();
+    });
 }
-else {
-    console.error("Elemento 'Reset' não encontrado.");
+function alterarContexto(contexto, tempo) {
+    tempoTotalEmSegundos = tempo;
+    tempoRestanteEmSegundos = tempo;
+    tempoInicio = null;
+    alterarCaminho(contexto);
+    resetarTempo();
+    Buttons.forEach((botao) => botao.classList.remove("active"));
+    switch (contexto) {
+        case "foco":
+            focoBt === null || focoBt === void 0 ? void 0 : focoBt.classList.add("active");
+            break;
+        case "descanso-curto":
+            curtoBt === null || curtoBt === void 0 ? void 0 : curtoBt.classList.add("active");
+            break;
+        case "descanso-longo":
+            longoBt === null || longoBt === void 0 ? void 0 : longoBt.classList.add("active");
+            break;
+    }
 }
-function RestartTime() {
-    if (focoBt === null || focoBt === void 0 ? void 0 : focoBt.classList.contains("active")) {
-        timeinSeconds = 1500;
-    }
-    else if (curtoBt === null || curtoBt === void 0 ? void 0 : curtoBt.classList.contains("active")) {
-        timeinSeconds = 300;
-    }
-    else if (longoBt === null || longoBt === void 0 ? void 0 : longoBt.classList.contains("active")) {
-        timeinSeconds = 900;
-    }
-    ResetSound.play();
-    ResetSound.volume = 0.1;
-    Zero();
-    ShowTime();
+if (focoBt) {
+    focoBt.addEventListener("click", () => alterarContexto("foco", 1500));
 }
-ShowTime();
+if (curtoBt) {
+    curtoBt.addEventListener("click", () => alterarContexto("descanso-curto", 300));
+}
+if (longoBt) {
+    longoBt.addEventListener("click", () => alterarContexto("descanso-longo", 900));
+}
+atualizarExibicaoTempo();
+atualizarBotaoStartPause();

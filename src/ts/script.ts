@@ -17,9 +17,14 @@ const PauseSound = new Audio("./src/sons/pause.mp3");
 const FinishSound = new Audio("./src/sons/beep.mp3");
 const ResetSound = new Audio("./src/sons/restart.mp3");
 
-let timeinSeconds = 1500;
-let Interval: number | null | undefined = null;
+// Variáveis de controle do temporizador
+let tempoTotalEmSegundos = 1500;
+let tempoRestanteEmSegundos = 1500;
+let intervalId: number | null = null;
+let estaPausado = true;
+let tempoInicio: number | null = null;
 
+// Controle de reprodução de música de fundo
 if (MusicFoco) {
   MusicFoco.addEventListener("change", () => {
     Music.loop = true;
@@ -33,34 +38,9 @@ if (MusicFoco) {
     }
   });
 }
-if (focoBt) {
-  focoBt.addEventListener("click", () => {
-    Zero();
-    timeinSeconds = 1500;
-    alterarCaminho("foco");
-    focoBt.classList.add("active");
-  });
-}
-if (curtoBt) {
-  curtoBt.addEventListener("click", () => {
-    Zero();
-    timeinSeconds = 300;
-    alterarCaminho("descanso-curto");
-    curtoBt.classList.add("active");
-  });
-}
 
-if (longoBt) {
-  longoBt.addEventListener("click", () => {
-    Zero();
-    timeinSeconds = 900;
-    alterarCaminho("descanso-longo");
-    longoBt.classList.add("active");
-  });
-}
-
+// Atualiza a interface do usuário com base no contexto selecionado
 function alterarCaminho(contexto: string) {
-  ShowTime();
   Buttons.forEach(function (contexto) {
     contexto.classList.remove("active");
   });
@@ -68,7 +48,6 @@ function alterarCaminho(contexto: string) {
   if (ImgFront) {
     ImgFront.setAttribute("src", `./src/imagens/${contexto}.png`);
   }
-
   switch (contexto) {
     case "foco":
       Tittle!.innerHTML = `Otimize sua produtividade,<br>
@@ -86,67 +65,129 @@ function alterarCaminho(contexto: string) {
   }
 }
 
-const Countdown = () => {
-  if (timeinSeconds <= 0) {
-    FinishSound.play();
-    FinishSound.volume = 0.1;
-    alert("Tempo finalizado!");
-    Zero();
-    return;
-  }
-  timeinSeconds -= 1;
-  ShowTime();
-};
-
-if (StartPauseBT) {
-  StartPauseBT.addEventListener("click", StartAndPause);
-}
-function StartAndPause() {
-  if (Interval) {
+// Inicia ou pausa a contagem do temporizador
+function iniciarOuPausarContagem() {
+  if (estaPausado) {
+    PlaySound.play();
+    PlaySound.volume = 0.1;
+    iniciarContagem();
+  } else {
     PauseSound.play();
     PauseSound.volume = 0.1;
-    Zero();
+    pausarContagem();
+  }
+}
+// Inicia a contagem regressiva
+function iniciarContagem() {
+  if (intervalId) clearInterval(intervalId);
+  estaPausado = false;
+  tempoInicio = Date.now() - (tempoTotalEmSegundos - tempoRestanteEmSegundos) * 1000;
+  intervalId = setInterval(atualizarTempo, 1000);
+  atualizarBotaoStartPause();
+}
+
+// Pausa a contagem regressiva
+function pausarContagem() {
+  estaPausado = true;
+  if (intervalId) clearInterval(intervalId);
+  atualizarBotaoStartPause();
+}
+
+// Atualiza o tempo restante e a exibição
+function atualizarTempo() {
+  if (tempoInicio === null) return;
+
+  const tempoDecorrido = Math.floor((Date.now() - tempoInicio) / 1000);
+  tempoRestanteEmSegundos = Math.max(tempoTotalEmSegundos - tempoDecorrido, 0);
+  if (tempoRestanteEmSegundos <= 0) {
+    finalizarContagem();
     return;
   }
-  PlaySound.play();
-  PlaySound.volume = 0.1;
-  Interval = setInterval(Countdown, 1000);
-  StartAndPauseBTImg?.setAttribute("src", "./src/imagens/pause.png");
-  StartAndPauseBT!.textContent = "Pausar";
+  tempoRestanteEmSegundos--;
+
+  atualizarExibicaoTempo();
 }
-function Zero() {
-  if (Interval !== null && Interval !== undefined) {
-    clearInterval(Interval);
+
+// Finaliza a contagem quando o tempo acaba
+function finalizarContagem() {
+  FinishSound.play();
+  FinishSound.volume = 0.1;
+  alert("Tempo finalizado!");
+  pausarContagem();
+  resetarTempo();
+}
+
+// Reseta o temporizador para o tempo total
+function resetarTempo() {
+  pausarContagem();
+  tempoRestanteEmSegundos = tempoTotalEmSegundos;
+  tempoInicio = null;
+  atualizarExibicaoTempo();
+}
+
+// Atualiza a exibição do tempo na tela
+function atualizarExibicaoTempo() {
+  const tempo = new Date(tempoRestanteEmSegundos * 1000);
+  const tempoFormatado = tempo.toLocaleTimeString("pt-Br", { minute: "2-digit", second: "2-digit" });
+  if (TimeinScreen) TimeinScreen.textContent = tempoFormatado;
+}
+
+// Atualiza o botão de início/pausa
+function atualizarBotaoStartPause() {
+  if (!StartAndPauseBTImg || !StartAndPauseBT) return;
+  if (estaPausado) {
+    StartAndPauseBTImg.setAttribute("src", "./src/imagens/play_arrow.png");
+    StartAndPauseBT.textContent = "Começar";
+  } else {
+    StartAndPauseBTImg.setAttribute("src", "./src/imagens/pause.png");
+    StartAndPauseBT.textContent = "Pausar";
   }
-  StartAndPauseBTImg?.setAttribute("src", "./src/imagens/play_arrow.png");
-  StartAndPauseBT!.textContent = "Começar";
-  Interval = null;
 }
 
-function ShowTime() {
-  const Time = new Date(timeinSeconds * 1000);
-  const TimeFormated = Time.toLocaleTimeString("pt-Br", { minute: "2-digit", second: "2-digit" });
-  TimeinScreen!.innerHTML = `${TimeFormated}`;
+// Event listeners para os botões de controle
+if (StartPauseBT) {
+  StartPauseBT.addEventListener("click", iniciarOuPausarContagem);
 }
-
 if (Reset) {
-  Reset.addEventListener("click", RestartTime);
-} else {
-  console.error("Elemento 'Reset' não encontrado.");
+  Reset.addEventListener("click", () => {
+    ResetSound.play();
+    ResetSound.volume = 0.1;
+    resetarTempo();
+  });
 }
-
-function RestartTime() {
-  if (focoBt?.classList.contains("active")) {
-    timeinSeconds = 1500;
-  } else if (curtoBt?.classList.contains("active")) {
-    timeinSeconds = 300;
-  } else if (longoBt?.classList.contains("active")) {
-    timeinSeconds = 900;
+function alterarContexto(contexto: string, tempo: number) {
+  tempoTotalEmSegundos = tempo;
+  tempoRestanteEmSegundos = tempo;
+  tempoInicio = null;
+  alterarCaminho(contexto);
+  resetarTempo();
+  Buttons.forEach((botao) => botao.classList.remove("active"));
+  switch (contexto) {
+    case "foco":
+      focoBt?.classList.add("active");
+      break;
+    case "descanso-curto":
+      curtoBt?.classList.add("active");
+      break;
+    case "descanso-longo":
+      longoBt?.classList.add("active");
+      break;
   }
-  ResetSound.play();
-  ResetSound.volume = 0.1;
-  Zero();
-  ShowTime();
 }
 
-ShowTime();
+// Event listeners para os botões de contexto
+if (focoBt) {
+  focoBt.addEventListener("click", () => alterarContexto("foco", 1500));
+}
+
+if (curtoBt) {
+  curtoBt.addEventListener("click", () => alterarContexto("descanso-curto", 300));
+}
+
+if (longoBt) {
+  longoBt.addEventListener("click", () => alterarContexto("descanso-longo", 900));
+}
+
+// Inicialização
+atualizarExibicaoTempo();
+atualizarBotaoStartPause();
