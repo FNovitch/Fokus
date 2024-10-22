@@ -110,11 +110,40 @@ function atualizarTempo() {
 
 // Finaliza a contagem quando o tempo acaba
 function finalizarContagem() {
+  // Toca o som imediatamente
   FinishSound.play();
   FinishSound.volume = 0.1;
-  alert("Tempo finalizado!");
+
+  // Exibe uma notificação não bloqueante na página
+  exibirNotificacao("Tempo Finalizado!");
+
+  // Pausa a contagem e reseta o tempo
   pausarContagem();
   resetarTempo();
+}
+
+// Exibe uma mensagem na página, sem bloquear a execução
+function exibirNotificacao(mensagem: string | null) {
+  // Cria um elemento div para exibir a notificação
+  const notificacao = document.createElement("div");
+  notificacao.textContent = mensagem;
+  notificacao.style.position = "fixed";
+  notificacao.style.bottom = "10px";
+  notificacao.style.right = "10px";
+  notificacao.style.padding = "10px";
+  notificacao.style.backgroundColor = "#b872ff";
+  notificacao.style.color = "#fff";
+  notificacao.style.fontSize = "16px";
+  notificacao.style.borderRadius = "5px";
+  notificacao.style.fontFamily = "Poppins";
+
+  // Adiciona a notificação ao corpo do documento
+  document.body.appendChild(notificacao);
+
+  // Remove a notificação após 5 segundos
+  setTimeout(() => {
+    notificacao.remove();
+  }, 5000);
 }
 
 // Reseta o temporizador para o tempo total

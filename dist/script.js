@@ -100,9 +100,26 @@ function atualizarTempo() {
 function finalizarContagem() {
     FinishSound.play();
     FinishSound.volume = 0.1;
-    alert("Tempo finalizado!");
+    exibirNotificacao("Tempo Finalizado!");
     pausarContagem();
     resetarTempo();
+}
+function exibirNotificacao(mensagem) {
+    const notificacao = document.createElement("div");
+    notificacao.textContent = mensagem;
+    notificacao.style.position = "fixed";
+    notificacao.style.bottom = "10px";
+    notificacao.style.right = "10px";
+    notificacao.style.padding = "10px";
+    notificacao.style.backgroundColor = "#b872ff";
+    notificacao.style.color = "#fff";
+    notificacao.style.fontSize = "16px";
+    notificacao.style.borderRadius = "5px";
+    notificacao.style.fontFamily = "Poppins";
+    document.body.appendChild(notificacao);
+    setTimeout(() => {
+        notificacao.remove();
+    }, 5000);
 }
 function resetarTempo() {
     pausarContagem();
