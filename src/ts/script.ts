@@ -153,12 +153,33 @@ function resetarTempo() {
   tempoInicio = null;
   atualizarExibicaoTempo();
 }
+// Exibir tempo no Titulo
+function atulizarTituloAba(tempoFormatado: string) {
+  const contextoAtual = html?.getAttribute("data-contexto");
+  let tituloContexto = "";
+
+  switch (contextoAtual) {
+    case "foco":
+      tituloContexto = "Foco";
+      break;
+    case "descanso-curto":
+      tituloContexto = "Descanso Curto";
+      break;
+    case "descanso-longo":
+      tituloContexto = "Descanso Longo";
+      break;
+    default:
+      tituloContexto = "Pomodoro";
+  }
+  document.title = `${tempoFormatado} - ${tituloContexto}`;
+}
 
 // Atualiza a exibição do tempo na tela
 function atualizarExibicaoTempo() {
   const tempo = new Date(tempoRestanteEmSegundos * 1000);
   const tempoFormatado = tempo.toLocaleTimeString("pt-Br", { minute: "2-digit", second: "2-digit" });
   if (TimeinScreen) TimeinScreen.textContent = tempoFormatado;
+  atulizarTituloAba(tempoFormatado);
 }
 
 // Atualiza o botão de início/pausa

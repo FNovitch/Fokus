@@ -127,11 +127,30 @@ function resetarTempo() {
     tempoInicio = null;
     atualizarExibicaoTempo();
 }
+function atulizarTituloAba(tempoFormatado) {
+    const contextoAtual = html === null || html === void 0 ? void 0 : html.getAttribute("data-contexto");
+    let tituloContexto = "";
+    switch (contextoAtual) {
+        case "foco":
+            tituloContexto = "Foco";
+            break;
+        case "descanso-curto":
+            tituloContexto = "Descanso Curto";
+            break;
+        case "descanso-longo":
+            tituloContexto = "Descanso Longo";
+            break;
+        default:
+            tituloContexto = "Pomodoro";
+    }
+    document.title = `${tempoFormatado} - ${tituloContexto}`;
+}
 function atualizarExibicaoTempo() {
     const tempo = new Date(tempoRestanteEmSegundos * 1000);
     const tempoFormatado = tempo.toLocaleTimeString("pt-Br", { minute: "2-digit", second: "2-digit" });
     if (TimeinScreen)
         TimeinScreen.textContent = tempoFormatado;
+    atulizarTituloAba(tempoFormatado);
 }
 function atualizarBotaoStartPause() {
     if (!StartAndPauseBTImg || !StartAndPauseBT)
