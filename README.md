@@ -63,7 +63,7 @@ dist/
 index.html
 ```
 
-## Deploy
+## 🚀 Acesse o projeto
 
-Projeto publicado em:
-[fokus-fnovitchs-projects.vercel.app](https://fokus-fnovitchs-projects.vercel.app/)
+👉 https://fokus-a4u1ev5sm-fnovitchs-projects.vercel.app/
+
