@@ -1,3 +1,7 @@
+<p align="center">
+<img loading="lazy" src="http://img.shields.io/static/v1?label=STATUS&message=%20CONCLUIDO&color=GREEN&style=for-the-badge"/>
+</p>
+
 # Fokus
 
 Aplicação inspirada na técnica Pomodoro para organizar blocos de foco, pausa curta e pausa longa em uma interface clean, responsiva e orientada à legibilidade.
