@@ -1,243 +1,238 @@
-const html = document.querySelector("html");
-const focoBt = document.querySelector(".app__card-button--foco");
-const curtoBt = document.querySelector(".app__card-button--curto");
-const longoBt = document.querySelector(".app__card-button--longo");
-const ImgFront = document.querySelector(".app__image");
-const Tittle = document.querySelector(".app__title");
-const Buttons = document.querySelectorAll(".app__card-button");
-const TimeinScreen = document.querySelector("#timer");
-const MusicFoco = document.querySelector("#alternar-musica");
-const Music = new Audio("./src/sons/luna-rise-part-one.mp3");
-const StartPauseBT = document.querySelector("#start-pause");
-const StartAndPauseBT = document.querySelector("#start-pause span");
-const StartAndPauseBTImg = document.querySelector(".app__card-primary-butto-icon");
-const Reset = document.querySelector("#restart");
-const PlaySound = new Audio("./src/sons/play.wav");
-const PauseSound = new Audio("./src/sons/pause.mp3");
-const FinishSound = new Audio("./src/sons/beep.mp3");
-const ResetSound = new Audio("./src/sons/restart.mp3");
+type SessionKey = "foco" | "descanso-curto" | "descanso-longo";
 
-// Variáveis de controle do temporizador
-let tempoTotalEmSegundos = 1500;
-let tempoRestanteEmSegundos = 1500;
+type SessionConfig = {
+  duration: number;
+  title: string;
+  heroImageAlt: string;
+  pageLabel: string;
+};
+
+const sessionConfig: Record<SessionKey, SessionConfig> = {
+  foco: {
+    duration: 25 * 60,
+    title: "Mergulhe no que importa e mantenha uma cadência sustentável.",
+    heroImageAlt: "Ilustração do modo foco do aplicativo",
+    pageLabel: "Foco"
+  },
+  "descanso-curto": {
+    duration: 5 * 60,
+    title: "Pausas curtas ajudam a recuperar a atenção sem quebrar o ritmo.",
+    heroImageAlt: "Ilustração do modo pausa curta do aplicativo",
+    pageLabel: "Pausa curta"
+  },
+  "descanso-longo": {
+    duration: 15 * 60,
+    title: "Use pausas mais longas para respirar, se reorganizar e voltar melhor.",
+    heroImageAlt: "Ilustração do modo pausa longa do aplicativo",
+    pageLabel: "Pausa longa"
+  }
+};
+
+const html = document.documentElement;
+const timerElement = document.querySelector<HTMLElement>("#timer");
+const startPauseButton = document.querySelector<HTMLButtonElement>("#start-pause");
+const startPauseLabel = document.querySelector<HTMLSpanElement>("#start-pause span");
+const startPauseIcon = document.querySelector<HTMLImageElement>(".app__card-primary-butto-icon");
+const restartButton = document.querySelector<HTMLButtonElement>("#restart");
+const musicToggle = document.querySelector<HTMLInputElement>("#alternar-musica");
+const contextText = document.querySelector<HTMLElement>(".app__title");
+const heroImage = document.querySelector<HTMLImageElement>(".app__image");
+const statusMessage = document.querySelector<HTMLElement>("#status-message");
+const modeButtons = Array.from(document.querySelectorAll<HTMLButtonElement>(".app__card-button"));
+
+const backgroundMusic = new Audio("./src/sons/luna-rise-part-one.mp3");
+const playSound = new Audio("./src/sons/play.wav");
+const pauseSound = new Audio("./src/sons/pause.mp3");
+const finishSound = new Audio("./src/sons/beep.mp3");
+const resetSound = new Audio("./src/sons/restart.mp3");
+
+let activeSession: SessionKey = "foco";
+let totalSeconds = sessionConfig[activeSession].duration;
+let remainingSeconds = totalSeconds;
 let intervalId: number | null = null;
-let estaPausado = true;
-let tempoInicio: number | null = null;
+let isPaused = true;
+let endTime = 0;
+let statusTimeoutId: number | null = null;
 
-// Controle de reprodução de música de fundo
-if (MusicFoco) {
-  MusicFoco.addEventListener("change", () => {
-    Music.loop = true;
+backgroundMusic.loop = true;
+backgroundMusic.volume = 0.12;
+playSound.volume = 0.12;
+pauseSound.volume = 0.12;
+finishSound.volume = 0.16;
+resetSound.volume = 0.12;
 
-    if (Music.paused) {
-      Music.play();
-      Music.volume = 0.1;
-    } else {
-      Music.pause();
-      Music.currentTime = 0;
-    }
+function formatTime(total: number) {
+  const minutes = Math.floor(total / 60)
+    .toString()
+    .padStart(2, "0");
+  const seconds = Math.floor(total % 60)
+    .toString()
+    .padStart(2, "0");
+
+  return `${minutes}:${seconds}`;
+}
+
+function updatePageTitle() {
+  document.title = `${formatTime(remainingSeconds)} | ${sessionConfig[activeSession].pageLabel} - Fokus`;
+}
+
+function updateTimerDisplay() {
+  if (!timerElement) return;
+
+  timerElement.textContent = formatTime(remainingSeconds);
+  updatePageTitle();
+}
+
+function updateStartPauseButton() {
+  if (!startPauseButton || !startPauseLabel || !startPauseIcon) return;
+
+  const isStartState = isPaused;
+
+  startPauseButton.setAttribute("aria-label", isStartState ? "Iniciar temporizador" : "Pausar temporizador");
+  startPauseLabel.textContent = isStartState ? "Começar" : "Pausar";
+  startPauseIcon.src = isStartState ? "./src/imagens/play_arrow.png" : "./src/imagens/pause.png";
+}
+
+function updateActiveButton() {
+  modeButtons.forEach((button) => {
+    const isActive = button.dataset.contexto === activeSession;
+    button.classList.toggle("active", isActive);
+    button.setAttribute("aria-selected", String(isActive));
   });
 }
 
-// Atualiza a interface do usuário com base no contexto selecionado
-function alterarCaminho(contexto: string) {
-  Buttons.forEach(function (contexto) {
-    contexto.classList.remove("active");
-  });
-  html?.setAttribute("data-contexto", contexto);
-  if (ImgFront) {
-    ImgFront.setAttribute("src", `./src/imagens/${contexto}.png`);
+function updateContextContent() {
+  const config = sessionConfig[activeSession];
+
+  html.setAttribute("data-contexto", activeSession);
+
+  if (contextText) {
+    contextText.textContent = config.title;
   }
-  switch (contexto) {
-    case "foco":
-      Tittle!.innerHTML = `Otimize sua produtividade,<br>
-            <strong class="app__title-strong">mergulhe no que importa.</strong>`;
-      break;
-    case "descanso-curto":
-      Tittle!.innerHTML = `Que tal dar<br>uma respirada?<br>
-            <strong class="app__title-strong">Faça uma<br>pausa curta!</strong>`;
-      break;
-    case "descanso-longo":
-      Tittle!.innerHTML = `Hora de voltar<br>á superficie.<br>
-            <strong class="app__title-strong">Faça uma<br>pausa longa.</strong>`;
-    default:
-      break;
+
+  if (heroImage) {
+    heroImage.src = `./src/imagens/${activeSession}.png`;
+    heroImage.alt = config.heroImageAlt;
+  }
+
+  updateActiveButton();
+}
+
+function clearCountdown() {
+  if (intervalId !== null) {
+    window.clearInterval(intervalId);
+    intervalId = null;
   }
 }
 
-// Inicia ou pausa a contagem do temporizador
-function iniciarOuPausarContagem() {
-  if (estaPausado) {
-    PlaySound.play();
-    PlaySound.volume = 0.1;
-    iniciarContagem();
-  } else {
-    PauseSound.play();
-    PauseSound.volume = 0.1;
-    pausarContagem();
+function showStatus(message: string) {
+  if (!statusMessage) return;
+
+  statusMessage.textContent = message;
+  statusMessage.classList.add("is-visible");
+
+  if (statusTimeoutId !== null) {
+    window.clearTimeout(statusTimeoutId);
+  }
+
+  statusTimeoutId = window.setTimeout(() => {
+    statusMessage.classList.remove("is-visible");
+  }, 3200);
+}
+
+function resetTimer(playFeedback = false) {
+  if (playFeedback) {
+    void resetSound.play();
+  }
+
+  clearCountdown();
+  isPaused = true;
+  remainingSeconds = totalSeconds;
+  updateTimerDisplay();
+  updateStartPauseButton();
+}
+
+function finishCountdown() {
+  clearCountdown();
+  isPaused = true;
+  remainingSeconds = 0;
+  updateTimerDisplay();
+  updateStartPauseButton();
+  void finishSound.play();
+  showStatus("Sessão concluída. Hora de decidir o próximo passo.");
+}
+
+function tick() {
+  const secondsLeft = Math.max(Math.ceil((endTime - Date.now()) / 1000), 0);
+  remainingSeconds = secondsLeft;
+  updateTimerDisplay();
+
+  if (secondsLeft === 0) {
+    finishCountdown();
   }
 }
-// Inicia a contagem regressiva
-function iniciarContagem() {
-  if (intervalId) clearInterval(intervalId);
-  estaPausado = false;
-  tempoInicio = Date.now() - (tempoTotalEmSegundos - tempoRestanteEmSegundos) * 1000;
-  intervalId = setInterval(atualizarTempo, 1000);
-  atualizarBotaoStartPause();
+
+function startCountdown() {
+  clearCountdown();
+  isPaused = false;
+  endTime = Date.now() + remainingSeconds * 1000;
+  updateStartPauseButton();
+  tick();
+  intervalId = window.setInterval(tick, 250);
 }
 
-// Pausa a contagem regressiva
-function pausarContagem() {
-  estaPausado = true;
-  if (intervalId) clearInterval(intervalId);
-  atualizarBotaoStartPause();
+function pauseCountdown() {
+  clearCountdown();
+  isPaused = true;
+  updateStartPauseButton();
 }
 
-// Atualiza o tempo restante e a exibição
-function atualizarTempo() {
-  if (tempoInicio === null) return;
-
-  const tempoDecorrido = Math.floor((Date.now() - tempoInicio) / 1000);
-  tempoRestanteEmSegundos = Math.max(tempoTotalEmSegundos - tempoDecorrido, 0);
-  if (tempoRestanteEmSegundos <= 0) {
-    finalizarContagem();
+function toggleCountdown() {
+  if (isPaused) {
+    void playSound.play();
+    startCountdown();
     return;
   }
-  tempoRestanteEmSegundos--;
 
-  atualizarExibicaoTempo();
+  void pauseSound.play();
+  pauseCountdown();
 }
 
-// Finaliza a contagem quando o tempo acaba
-function finalizarContagem() {
-  // Toca o som imediatamente
-  FinishSound.play();
-  FinishSound.volume = 0.1;
-
-  // Exibe uma notificação não bloqueante na página
-  exibirNotificacao("Tempo Finalizado!");
-
-  // Pausa a contagem e reseta o tempo
-  pausarContagem();
-  resetarTempo();
+function changeSession(session: SessionKey) {
+  activeSession = session;
+  totalSeconds = sessionConfig[session].duration;
+  remainingSeconds = totalSeconds;
+  updateContextContent();
+  resetTimer();
 }
 
-// Exibe uma mensagem na página, sem bloquear a execução
-function exibirNotificacao(mensagem: string | null) {
-  // Cria um elemento div para exibir a notificação
-  const notificacao = document.createElement("div");
-  notificacao.textContent = mensagem;
-  notificacao.style.position = "fixed";
-  notificacao.style.bottom = "10px";
-  notificacao.style.right = "10px";
-  notificacao.style.padding = "10px";
-  notificacao.style.backgroundColor = "#b872ff";
-  notificacao.style.color = "#fff";
-  notificacao.style.fontSize = "16px";
-  notificacao.style.borderRadius = "5px";
-  notificacao.style.fontFamily = "Poppins";
-
-  // Adiciona a notificação ao corpo do documento
-  document.body.appendChild(notificacao);
-
-  // Remove a notificação após 5 segundos
-  setTimeout(() => {
-    notificacao.remove();
-  }, 5000);
-}
-
-// Reseta o temporizador para o tempo total
-function resetarTempo() {
-  pausarContagem();
-  tempoRestanteEmSegundos = tempoTotalEmSegundos;
-  tempoInicio = null;
-  atualizarExibicaoTempo();
-}
-// Exibir tempo no Titulo
-function atulizarTituloAba(tempoFormatado: string) {
-  const contextoAtual = html?.getAttribute("data-contexto");
-  let tituloContexto = "";
-
-  switch (contextoAtual) {
-    case "foco":
-      tituloContexto = "Foco";
-      break;
-    case "descanso-curto":
-      tituloContexto = "Descanso Curto";
-      break;
-    case "descanso-longo":
-      tituloContexto = "Descanso Longo";
-      break;
-    default:
-      tituloContexto = "Pomodoro";
+musicToggle?.addEventListener("change", () => {
+  if (musicToggle.checked) {
+    void backgroundMusic.play();
+    return;
   }
-  document.title = `${tempoFormatado} - ${tituloContexto}`;
-}
 
-// Atualiza a exibição do tempo na tela
-function atualizarExibicaoTempo() {
-  const tempo = new Date(tempoRestanteEmSegundos * 1000);
-  const tempoFormatado = tempo.toLocaleTimeString("pt-Br", { minute: "2-digit", second: "2-digit" });
-  if (TimeinScreen) TimeinScreen.textContent = tempoFormatado;
-  atulizarTituloAba(tempoFormatado);
-}
+  backgroundMusic.pause();
+  backgroundMusic.currentTime = 0;
+});
 
-// Atualiza o botão de início/pausa
-function atualizarBotaoStartPause() {
-  if (!StartAndPauseBTImg || !StartAndPauseBT) return;
-  if (estaPausado) {
-    StartAndPauseBTImg.setAttribute("src", "./src/imagens/play_arrow.png");
-    StartAndPauseBT.textContent = "Começar";
-  } else {
-    StartAndPauseBTImg.setAttribute("src", "./src/imagens/pause.png");
-    StartAndPauseBT.textContent = "Pausar";
-  }
-}
+startPauseButton?.addEventListener("click", toggleCountdown);
 
-// Event listeners para os botões de controle
-if (StartPauseBT) {
-  StartPauseBT.addEventListener("click", iniciarOuPausarContagem);
-}
-if (Reset) {
-  Reset.addEventListener("click", () => {
-    ResetSound.play();
-    ResetSound.volume = 0.1;
-    resetarTempo();
+restartButton?.addEventListener("click", () => {
+  resetTimer(true);
+  showStatus("Temporizador reiniciado.");
+});
+
+modeButtons.forEach((button) => {
+  button.addEventListener("click", () => {
+    const session = button.dataset.contexto as SessionKey | undefined;
+
+    if (!session) return;
+
+    changeSession(session);
   });
-}
-function alterarContexto(contexto: string, tempo: number) {
-  tempoTotalEmSegundos = tempo;
-  tempoRestanteEmSegundos = tempo;
-  tempoInicio = null;
-  alterarCaminho(contexto);
-  resetarTempo();
-  Buttons.forEach((botao) => botao.classList.remove("active"));
-  switch (contexto) {
-    case "foco":
-      focoBt?.classList.add("active");
-      break;
-    case "descanso-curto":
-      curtoBt?.classList.add("active");
-      break;
-    case "descanso-longo":
-      longoBt?.classList.add("active");
-      break;
-  }
-}
+});
 
-// Event listeners para os botões de contexto
-if (focoBt) {
-  focoBt.addEventListener("click", () => alterarContexto("foco", 1500));
-}
-
-if (curtoBt) {
-  curtoBt.addEventListener("click", () => alterarContexto("descanso-curto", 300));
-}
-
-if (longoBt) {
-  longoBt.addEventListener("click", () => alterarContexto("descanso-longo", 900));
-}
-
-// Inicialização
-atualizarExibicaoTempo();
-atualizarBotaoStartPause();
+updateContextContent();
+updateTimerDisplay();
+updateStartPauseButton();
