@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-BR" data-contexto="foco">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta
+      name="description"
+      content="Fokus é um timer inspirado na técnica Pomodoro para organizar blocos de foco e descanso com uma experiência visual clean e responsiva." />
+    <title>Fokus | Timer Pomodoro minimalista</title>
+    <link rel="shortcut icon" href="./src/imagens/favicon.ico" type="image/x-icon" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Space+Grotesk:wght@500;700&display=swap"
+      rel="stylesheet" />
+    <link rel="stylesheet" href="./src/css/styles.css" />
+  </head>
+
+  <body>
+    <main class="app">
+      <section class="hero" aria-labelledby="hero-title">
+        <header class="hero__header">
+          <img class="hero__logo" src="./src/imagens/logo.png" alt="Logotipo Fokus" />
+          <span class="hero__tag">Pomodoro timer</span>
+        </header>
+
+        <div class="hero__content">
+          <div class="hero__copy">
+            <p class="hero__eyebrow">Rotina com mais clareza</p>
+            <h1 id="hero-title" class="hero__title">
+              Organize seu tempo com sessões de foco e pausas que realmente ajudam.
+            </h1>
+            <p class="hero__description">
+              Uma experiência simples para iniciar rápido, manter o ritmo e reduzir distrações ao longo do dia.
+            </p>
+            <ul class="hero__highlights" aria-label="Destaques do projeto">
+              <li>Fluxo direto e sem ruído visual</li>
+              <li>Timer com foco em legibilidade</li>
+              <li>Interface responsiva e acessível</li>
+            </ul>
+          </div>
+
+          <figure class="hero__figure">
+            <img
+              class="hero__image app__image"
+              src="./src/imagens/foco.png"
+              alt="Ilustração do modo foco do aplicativo" />
+          </figure>
+        </div>
+      </section>
+
+      <section class="timer-panel" aria-labelledby="timer-title">
+        <div class="timer-panel__heading">
+          <p class="timer-panel__label">Sessão atual</p>
+          <h2 id="timer-title" class="timer-panel__title">Gerencie seu ritmo com intenção</h2>
+        </div>
+
+        <div class="timer-panel__card">
+          <div class="timer-panel__modes" role="tablist" aria-label="Seleção de modo">
+            <button
+              type="button"
+              data-contexto="foco"
+              class="app__card-button app__card-button--foco active"
+              role="tab"
+              aria-selected="true">
+              Foco
+            </button>
+            <button
+              type="button"
+              data-contexto="descanso-curto"
+              class="app__card-button app__card-button--curto"
+              role="tab"
+              aria-selected="false">
+              Pausa curta
+            </button>
+            <button
+              type="button"
+              data-contexto="descanso-longo"
+              class="app__card-button app__card-button--longo"
+              role="tab"
+              aria-selected="false">
+              Pausa longa
+            </button>
+          </div>
+
+          <p class="timer-panel__context app__title">
+            Mergulhe no que importa e mantenha uma cadência sustentável.
+          </p>
+
+          <div class="app__card-timer" id="timer" role="timer" aria-live="polite">25:00</div>
+
+          <div class="timer-panel__sound">
+            <label class="toggle" for="alternar-musica">
+              <input class="toggle-checkbox" type="checkbox" id="alternar-musica" />
+              <span class="toggle-switch" aria-hidden="true"></span>
+              <span class="app__card-list-label">Música ambiente</span>
+            </label>
+          </div>
+
+          <div class="app__card-primary-button-wrapper">
+            <button id="start-pause" class="app__card-primary-button" type="button">
+              <img class="app__card-primary-butto-icon" src="./src/imagens/play_arrow.png" alt="" aria-hidden="true" />
+              <span>Começar</span>
+            </button>
+
+            <button id="restart" class="app__card-secondary-button" type="button">Reiniciar</button>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <div id="status-message" class="status-message" role="status" aria-live="assertive"></div>
+
+    <script src="./dist/script.js"></script>
+  </body>
+</html>

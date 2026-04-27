@@ -4,7 +4,7 @@
   "description": "Timer Pomodoro minimalista com HTML, CSS e TypeScript.",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "tsc && node scripts/build.mjs",
     "check": "tsc --noEmit"
   },
   "keywords": [
