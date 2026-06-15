@@ -1,120 +1,92 @@
-﻿<p align="center">
-  <img
-    loading="lazy"
-    src="https://img.shields.io/static/v1?label=STATUS&message=%20CONCLUIDO&color=GREEN&style=for-the-badge"
-  />
-</p>
+# Fokus
 
-<h1 align="center">Fokus</h1>
+![Status](https://img.shields.io/badge/status-concluido-16a34a?style=for-the-badge)
+![HTML5](https://img.shields.io/badge/HTML5-E34F26?style=for-the-badge&logo=html5&logoColor=white)
+![CSS3](https://img.shields.io/badge/CSS3-1572b6?style=for-the-badge&logo=css3&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-5-3178c6?style=for-the-badge&logo=typescript&logoColor=white)
+![Vercel](https://img.shields.io/badge/Vercel-deploy-000000?style=for-the-badge&logo=vercel&logoColor=white)
 
-<p align="center">
-  Timer inspirado na tecnica Pomodoro com interface clean, trilha sonora opcional
-  e foco em produtividade com boa experiencia visual.
-</p>
+Fokus e um timer inspirado na tecnica Pomodoro, com interface limpa, trilha sonora opcional e foco em produtividade.
 
-## Sobre o projeto
+O projeto foi desenvolvido para praticar manipulacao do DOM, controle de estado no cliente, responsividade e organizacao de assets com TypeScript.
 
-O **Fokus** e um projeto de portifolio desenvolvido para praticar construcao de
-interfaces interativas com `HTML`, `CSS` e `TypeScript`, aplicando conceitos de
-responsividade, semantica, manipulacao do DOM e organizacao de estado no lado do
-cliente.
+## Visao Geral
 
-A proposta do projeto e oferecer uma experiencia simples para gestao de tempo,
-com alternancia entre foco, pausa curta e pausa longa em uma interface visualmente
-mais limpa e objetiva.
+- Timer de foco, pausa curta e pausa longa.
+- Atualizacao visual conforme o modo selecionado.
+- Controle de iniciar, pausar e reiniciar.
+- Trilha sonora opcional.
+- Interface responsiva para desktop e mobile.
+- Feedback visual ao concluir sessoes.
+
+## Tecnologias
+
+- HTML5
+- CSS3
+- TypeScript
+- JavaScript
 
 ## Funcionalidades
 
-- Timer inspirado na tecnica Pomodoro
-- Modos de foco, pausa curta e pausa longa
-- Atualizacao visual conforme o contexto da sessao
-- Controles de iniciar, pausar e reiniciar o ciclo
-- Trilha sonora opcional durante o uso
-- Interface responsiva para desktop e mobile
-- Feedback mais claro ao concluir ou reiniciar sessoes
+- Alternancia entre modos de tempo.
+- Contagem regressiva interativa.
+- Controle de musica ambiente.
+- Mudanca de contexto visual.
+- Build TypeScript.
+- Assets visuais e sonoros organizados.
 
-## Tecnologias utilizadas
+## Estrutura
 
-- `HTML5`
-- `CSS3`
-- `TypeScript`
-- `JavaScript`
-
-## Estrutura do projeto
-
-```text
-Fokus/
-|- dist/
-|- docs/
-|  |- screenshots/
-|- public/
-|- scripts/
-|- src/
-|  |- css/
-|  |- imagens/
-|  |- sons/
-|  |- ts/
-|- index.html
-|- package.json
-|- tsconfig.json
-|- vercel.json
+```bash
+.
+├── dist
+├── docs
+│   └── screenshots
+├── public
+├── scripts
+├── src
+│   ├── css
+│   ├── imagens
+│   ├── sons
+│   └── ts
+├── index.html
+├── package.json
+├── tsconfig.json
+├── vercel.json
+└── README.md
 ```
 
-## Arquitetura atual
+## Como Rodar
 
-O projeto segue uma estrutura front-end enxuta, com separacao entre arquivos de
-estilo, logica, assets visuais e arquivos de apoio ao build.
+### Pre-requisitos
 
-### Interface
+- Node.js
+- npm
 
-- Estrutura principal em `index.html`
-- Estilos organizados em `src/css/styles.css`
-- Experiencia visual pensada para reduzir ruido e melhorar legibilidade
-
-### Logica
-
-- Comportamento do timer implementado em `src/ts/script.ts`
-- Build final gerado para a pasta `dist/`
-- Script de build para preparar os arquivos finais da aplicacao
-
-## Como executar localmente
-
-1. Instale as dependencias:
+### Instalacao
 
 ```bash
 npm install
 ```
 
-2. Gere o build do projeto:
+### Build
 
 ```bash
 npm run build
 ```
 
-3. Abra o arquivo `index.html` no navegador.
+Depois abra:
 
-## Scripts disponiveis
+```txt
+index.html
+```
+
+## Scripts
 
 ```bash
 npm run build
 npm run check
 ```
-
-## Objetivos de aprendizado demonstrados
-
-- Manipulacao do DOM com TypeScript
-- Controle de estado em interface interativa
-- Estruturacao de projeto front-end para portifolio
-- Responsividade e refinamento visual
-- Uso de assets visuais e sonoros em uma aplicacao web
-
-## Melhorias realizadas nesta versao
-
-- Estrutura HTML mais semantica e acessivel
-- Interface visual mais minimalista e consistente
-- Timer com comportamento mais previsivel
-- Melhor organizacao do codigo TypeScript
-- README reestruturado para apresentacao profissional
 
 ## Preview
 
@@ -128,7 +100,10 @@ npm run check
 
 ## Deploy
 
-Deploy atual do projeto:
+Deploy atual:
 
 [https://fokus-a4u1ev5sm-fnovitchs-projects.vercel.app/](https://fokus-a4u1ev5sm-fnovitchs-projects.vercel.app/)
 
+## Status
+
+Projeto concluido para portfólio, com foco em interfaces interativas, TypeScript e experiencia de produtividade.
